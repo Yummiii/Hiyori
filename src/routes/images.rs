@@ -1,22 +1,18 @@
-use actix_web::{
-    get,
-    web::{self, Data},
-    HttpResponse,
-};
-use crate::database::{images, Database};
+use actix_web::web::{Data, Path};
+use actix_web::{get, HttpResponse};
+
+use crate::database::images::get_image_data_by_image_id;
+use crate::database::Database;
 
 #[get("/{id}")]
-pub async fn get_image(database: Data<Database>, path: web::Path<String>) -> HttpResponse {
-    let image = match images::get_image(&database, path.into_inner()).await {
+pub async fn get_image(db: Data<Database>, path: Path<String>) -> HttpResponse {
+    let image = match get_image_data_by_image_id(&db, &path.into_inner()).await {
         Some(image) => image,
         None => return HttpResponse::NotFound().body("Image not found"),
     };
-    let image_data = match images::get_image_data(&database, image.data).await {
-        Some(image_data) => image_data,
-        None => return HttpResponse::NotFound().body("Image data not found"),
-    };
+
     HttpResponse::Ok()
         .insert_header(("Cache-Control", "max-age=2630000, no-transform"))
-        .content_type(image_data.mime)
-        .body(image_data.content)
+        .content_type(image.mime)
+        .body(image.content)
 }

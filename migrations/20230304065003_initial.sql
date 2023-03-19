@@ -9,22 +9,31 @@ create table ImagesData (
 create table Collections (
     id varchar(24) not null,
     name varchar(255) not null,
-    parent varchar(24),
     thumb bigint,
     primary key (id),
-    foreign key (parent) references Collections(id),
     foreign key (thumb) references ImagesData(id)
 );
-create index IX_collections_parent on Collections(parent);
+
+create table Books (
+    id varchar(24) not null,
+    title varchar(255) not null,
+    cover bigint not null,
+    collection varchar(24) not null,
+    primary key (id),
+    foreign key (cover) references ImagesData(id),
+    foreign key (collection) references Collections(id)
+);
+create index IX_books_collection on Books(collection);
+create index IX_books_title on Books(title);
 
 create table Images (
     id varchar(24) not null,
-    collection_id varchar(24) not null,
+    book varchar(24) not null,
+    page int not null,
     data bigint not null,
-    page_index int not null,
     primary key (id),
-    foreign key (collection_id) references Collections(id),
-    foreign key (data) references ImagesData(id)
+    foreign key (book) references Books(id) on delete cascade,
+    foreign key (data) references ImagesData(id) on delete cascade
 );
-create index IX_collection_images on Images(collection_id);
-create index IX_images_page_index on Images(page_index);
+create index IX_images_book on Images(book);
+create index IX_images_page on Images(page);

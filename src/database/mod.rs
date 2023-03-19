@@ -1,7 +1,11 @@
-use std::time::Duration;
 use actix_web::rt::time;
-use sqlx::{mysql::{MySqlDatabaseError, MySqlPoolOptions}, MySql, Pool};
+use sqlx::{
+    mysql::{MySqlDatabaseError, MySqlPoolOptions},
+    MySql, Pool,
+};
+use std::time::Duration;
 
+pub mod books;
 pub mod collections;
 pub mod images;
 

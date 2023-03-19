@@ -25,7 +25,6 @@ sqlx = { version = "0.6.2", features = [
 ] }
 log = "0.4.17"
 actix-multipart = "0.6.0"
-zip = "0.6.4"
-xml-rs = "0.8.4"
-regex = "1.7.1"
 actix-cors = "0.6.4"
+epub = "2.0.0"
+itertools = "0.10.5"

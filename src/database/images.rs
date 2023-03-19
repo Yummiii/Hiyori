@@ -1,100 +1,76 @@
-use serde::{Deserialize, Serialize};
+use crate::database::Database;
+use serde::Serialize;
 use sqlx::FromRow;
 
-use super::Database;
-
-#[derive(Debug, Deserialize, Serialize, FromRow)]
+#[derive(FromRow, Serialize)]
 pub struct Image {
     pub id: String,
-    pub collection_id: String,
+    #[serde(skip_serializing)]
+    pub book: String,
+    pub page: i32,
+    #[serde(skip_serializing)]
     pub data: i64,
-    pub page_index: i32,
 }
 
-#[derive(Debug, Deserialize, Serialize, FromRow)]
+#[derive(FromRow)]
 pub struct ImageData {
     pub id: i64,
     pub mime: String,
     pub content: Vec<u8>,
 }
 
-pub async fn create_image_data(connection: &Database, data: ImageData) -> i64 {
-    let result = sqlx::query("insert into ImagesData (mime, content) values (?, ?)")
+pub async fn create_image_data(db: &Database, data: &ImageData) -> Result<i64, sqlx::Error> {
+    let result = sqlx::query("INSERT INTO ImagesData (mime, content) VALUES (?, ?)")
         .bind(&data.mime)
         .bind(&data.content)
-        .execute(connection.get_pool())
+        .execute(db.get_pool())
+        .await?;
+    Ok(result.last_insert_id() as i64)
+}
+
+pub async fn create_image(db: &Database, image: &Image) -> Result<(), sqlx::Error> {
+    sqlx::query("INSERT INTO Images (id, book, page, data) VALUES (?, ?, ?, ?)")
+        .bind(&image.id)
+        .bind(&image.book)
+        .bind(&image.page)
+        .bind(&image.data)
+        .execute(db.get_pool())
+        .await?;
+    Ok(())
+}
+
+pub async fn get_image_data(db: &Database, id: i64) -> Option<ImageData> {
+    let data = sqlx::query_as::<_, ImageData>("SELECT * FROM ImagesData WHERE id = ?")
+        .bind(id)
+        .fetch_optional(db.get_pool())
         .await
         .unwrap();
-
-    result.last_insert_id() as i64
+    data
 }
 
-pub async fn get_image_data(connection: &Database, id: i64) -> Option<ImageData> {
-    let data = sqlx::query_as::<_, ImageData>("select * from ImagesData where id = ?")
+pub async fn get_image_data_by_image_id(db: &Database, id: &String) -> Option<ImageData> {
+    let image = sqlx::query_as::<_, ImageData>("SELECT ImagesData.id, mime, content from Images join ImagesData on Images.data = ImagesData.id where Images.id = ?")
         .bind(id)
-        .fetch_one(connection.get_pool())
-        .await;
-
-    match data {
-        Ok(data) => Some(data),
-        Err(_) => None,
-    }
+        .fetch_optional(db.get_pool())
+        .await
+        .unwrap();
+    image
 }
 
-pub async fn create(connection: &Database, image: Image) -> String {
-    let result =
-        sqlx::query("insert into Images (id, collection_id, data, page_index) values (?, ?, ?, ?)")
-            .bind(&image.id)
-            .bind(&image.collection_id)
-            .bind(&image.data)
-            .bind(&image.page_index)
-            .execute(connection.get_pool())
+pub async fn get_images_by_book(db: &Database, book: &String) -> Vec<Image> {
+    let images =
+        sqlx::query_as::<_, Image>("SELECT * FROM Images WHERE book = ? ORDER BY page ASC")
+            .bind(book)
+            .fetch_all(db.get_pool())
             .await
             .unwrap();
-
-    result.last_insert_id().to_string()
+    images
 }
 
-pub async fn get_image(connection: &Database, id: String) -> Option<Image> {
-    let image = sqlx::query_as::<_, Image>("select * from Images where id = ?")
+pub async fn delete_image_data(db: &Database, id: &i64) -> Result<(), sqlx::Error> {
+    sqlx::query("DELETE FROM ImagesData WHERE id = ?")
         .bind(id)
-        .fetch_one(connection.get_pool())
-        .await;
-
-    match image {
-        Ok(image) => Some(image),
-        Err(_) => None,
-    }
-}
-
-pub async fn get_all_by_collection(connection: &Database, collection: String) -> Vec<Image> {
-    sqlx::query_as::<_, Image>(
-        "select * from Images where collection_id = ? order by page_index asc",
-    )
-    .bind(collection)
-    .fetch_all(connection.get_pool())
-    .await
-    .unwrap()
-}
-
-pub async fn delete_image_data(connection: &Database, id: i64) {
-    sqlx::query("delete from ImagesData where id = ?")
-        .bind(id)
-        .execute(connection.get_pool())
-        .await
-        .unwrap();
-}
-
-pub async fn delete_images_by_collection(connection: &Database, collection: String) {
-    let images = get_all_by_collection(connection, collection.clone()).await;
-
-    sqlx::query("delete from Images where collection_id = ?")
-        .bind(collection)
-        .execute(connection.get_pool())
-        .await
-        .unwrap();
-
-    for image in images {
-        delete_image_data(connection, image.data).await;
-    }
+        .execute(db.get_pool())
+        .await?;
+    Ok(())
 }
