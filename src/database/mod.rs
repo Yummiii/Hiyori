@@ -41,7 +41,7 @@ impl Database {
         sqlx::migrate!("./migrations")
             .run(&self.pool)
             .await
-            .expect("Failed to migrate database");
+            .unwrap();
         log::info!("Migrated database");
     }
 
