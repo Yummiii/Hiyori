@@ -1,18 +1,20 @@
-use crate::database::{
-    collections::{self, Collection},
-    images::{self, ImageData},
-    Database,
-};
-use actix_multipart::form::{tempfile::TempFile, MultipartForm};
+use std::io::Read;
+
+use actix_multipart::form::{MultipartForm, tempfile::TempFile};
 use actix_web::{
-    delete, get, post,
-    web::{self, Data, Json, Bytes},
-    HttpResponse,
+    delete, get, HttpResponse,
+    post,
+    web::{self, Bytes, Data, Json},
 };
 use cuid2::cuid;
 use serde::Deserialize;
 use serde_json::json;
-use std::io::Read;
+
+use crate::database::{
+    collections::{self, Collection},
+    Database,
+    images::{self, ImageData},
+};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateCollectionDto {
@@ -40,7 +42,7 @@ pub async fn create_collection(
             thumb: None,
         },
     )
-    .await;
+        .await;
     HttpResponse::Created().json(collection)
 }
 
@@ -98,7 +100,7 @@ pub async fn set_collection_thumb(
             mime: thumb.image.content_type.clone().unwrap().to_string(),
         },
     )
-    .await;
+        .await;
     collections::set_thumb(&database, collection.id, image_id).await;
 
     if let Some(thumb) = collection.thumb {

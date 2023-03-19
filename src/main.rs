@@ -2,8 +2,9 @@ use std::env;
 
 use actix_cors::Cors;
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
-use database::Database;
 use dotenv::dotenv;
+
+use database::Database;
 use routes::init_routes;
 
 mod database;
@@ -33,5 +34,4 @@ async fn main() -> std::io::Result<()> {
     .bind(env::var("BIND_URL").unwrap_or("0.0.0.0:3000".to_string()))?
     .run()
     .await
-    //
 }
