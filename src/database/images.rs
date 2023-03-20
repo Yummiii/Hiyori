@@ -8,6 +8,7 @@ pub struct Image {
     #[serde(skip_serializing)]
     pub book: String,
     pub page: i32,
+    pub file_name: String,
     #[serde(skip_serializing)]
     pub data: i64,
 }
@@ -29,10 +30,11 @@ pub async fn create_image_data(db: &Database, data: &ImageData) -> Result<i64, s
 }
 
 pub async fn create_image(db: &Database, image: &Image) -> Result<(), sqlx::Error> {
-    sqlx::query("INSERT INTO Images (id, book, page, data) VALUES (?, ?, ?, ?)")
+    sqlx::query("INSERT INTO Images (id, book, page, file_name, data) VALUES (?, ?, ?, ?, ?)")
         .bind(&image.id)
         .bind(&image.book)
         .bind(&image.page)
+        .bind(&image.file_name)
         .bind(&image.data)
         .execute(db.get_pool())
         .await?;

@@ -83,6 +83,7 @@ pub async fn from_epub(db: Data<Database>, epub: MultipartForm<FromEpubRequest>)
                     book: book.id.clone(),
                     page: i,
                     data: img,
+                    file_name: res.1.0.file_name().unwrap().to_str().unwrap().to_string()
                 },
             )
             .await

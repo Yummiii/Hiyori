@@ -30,6 +30,7 @@ create table Images (
     id varchar(24) not null,
     book varchar(24) not null,
     page int not null,
+    file_name varchar(255) not null,
     data bigint not null,
     primary key (id),
     foreign key (book) references Books(id) on delete cascade,
@@ -37,3 +38,4 @@ create table Images (
 );
 create index IX_images_book on Images(book);
 create index IX_images_page on Images(page);
+create index IX_images_file_name on Images(file_name);
