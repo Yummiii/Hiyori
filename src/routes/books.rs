@@ -65,20 +65,16 @@ pub async fn from_epub(db: Data<Database>, epub: MultipartForm<FromEpubRequest>)
     for res in resources.iter().sorted() {
         if res.1 .1 == "image/jpeg" || res.1 .1 == "image/png" {
             let img = doc.get_resource_by_path(&res.1 .0).unwrap();
-            let img = if res.0 == "x_cover" {
-                cover
-            } else {
-                create_image_data(
-                    &db,
-                    &ImageData {
-                        id: 0,
-                        mime: res.1 .1.clone(),
-                        content: img,
-                    },
-                )
-                .await
-                .unwrap()
-            };
+            let img = create_image_data(
+                &db,
+                &ImageData {
+                    id: 0,
+                    mime: res.1 .1.clone(),
+                    content: img,
+                },
+            )
+            .await
+            .unwrap();
 
             create_image(
                 &db,

@@ -58,12 +58,11 @@ pub async fn get_image_data_by_image_id(db: &Database, id: &String) -> Option<Im
 }
 
 pub async fn get_images_by_book(db: &Database, book: &String) -> Vec<Image> {
-    let images =
-        sqlx::query_as::<_, Image>("SELECT * FROM Images WHERE book = ? ORDER BY page ASC")
-            .bind(book)
-            .fetch_all(db.get_pool())
-            .await
-            .unwrap();
+    let images = sqlx::query_as::<_, Image>("SELECT * FROM Images WHERE book = ? ORDER BY page")
+        .bind(book)
+        .fetch_all(db.get_pool())
+        .await
+        .unwrap();
     images
 }
 
