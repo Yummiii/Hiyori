@@ -40,7 +40,32 @@ pub async fn from_epub(db: Data<Database>, epub: MultipartForm<FromEpubRequest>)
 
     let mut doc = EpubDoc::from_reader(epub.epub.file.as_file()).unwrap();
 
-    let cover = doc.get_cover().unwrap();
+    let cover = if let Some(cover) = doc.get_cover() {
+        cover
+    } else {
+        let res = doc.resources.clone();
+        let mut res = res
+            .iter()
+            .filter(|x| x.1 .1 == "image/jpeg" || x.1 .1 == "image/png");
+        if let Some(a) = res.find(|x| {
+            x.1 .0
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_lowercase()
+                .contains("cover")
+        }) {
+            (doc.get_resource_by_path(&a.1 .0).unwrap(), a.1 .1.clone())
+        } else {
+            let res = res.next().unwrap();
+            (
+                doc.get_resource_by_path(&res.1 .0).unwrap(),
+                res.1 .1.clone(),
+            )
+        }
+    };
+
     let cover = create_image_data(
         &db,
         &ImageData {
@@ -83,7 +108,7 @@ pub async fn from_epub(db: Data<Database>, epub: MultipartForm<FromEpubRequest>)
                     book: book.id.clone(),
                     page: i,
                     data: img,
-                    file_name: res.1.0.file_name().unwrap().to_str().unwrap().to_string()
+                    file_name: res.1 .0.file_name().unwrap().to_str().unwrap().to_string(),
                 },
             )
             .await
