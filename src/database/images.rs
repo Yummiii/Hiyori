@@ -59,3 +59,11 @@ pub async fn get_image_data(db: &Database, id: &i64) -> Result<Option<ImageData>
         .await?;
     Ok(image)
 }
+
+pub async fn delete_image_data(db: &Database, id: &i64) -> Result<(), sqlx::Error> {
+    sqlx::query("DELETE FROM ImagesData WHERE id = ?")
+        .bind(id)
+        .execute(db.get_pool())
+        .await?;
+    Ok(())
+}

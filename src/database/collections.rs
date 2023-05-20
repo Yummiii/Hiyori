@@ -44,3 +44,11 @@ pub async fn set_collection_thumbnail(db: &Database, collection_id: &String, thu
         .await?;
     Ok(())
 }
+
+pub async fn delete_collection(db: &Database, collection_id: &String) -> Result<(), sqlx::Error> {
+    sqlx::query("DELETE FROM Collections WHERE id = ?")
+        .bind(collection_id)
+        .execute(db.get_pool())
+        .await?;
+    Ok(())
+}

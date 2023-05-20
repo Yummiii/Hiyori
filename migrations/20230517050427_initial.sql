@@ -12,7 +12,7 @@ create table Collections (
     name varchar(255) not null,
     thumbnail_id bigint,
     primary key (id),
-    foreign key (thumbnail_id) references ImagesData (id)
+    foreign key (thumbnail_id) references ImagesData (id) on delete set null
 );
 
 create table Books (
@@ -20,7 +20,7 @@ create table Books (
     name varchar(255) not null,
     collection_id varchar(24) not null,
     primary key (id),
-    foreign key (collection_id) references Collections (id)
+    foreign key (collection_id) references Collections (id) on delete cascade
 );
 
 create table BookImages (
@@ -30,6 +30,6 @@ create table BookImages (
     image_id bigint not null,
     file_name varchar(255) not null,
     primary key (id),
-    foreign key (book_id) references Books (id),
-    foreign key (image_id) references ImagesData (id)
+    foreign key (book_id) references Books (id) on delete cascade,
+    foreign key (image_id) references ImagesData (id) on delete cascade
 );

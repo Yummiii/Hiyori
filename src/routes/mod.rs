@@ -16,6 +16,7 @@ pub fn init_routes(cfg: &mut ServiceConfig) {
             .service(collections::get_collection)
             .service(collections::get_collection_thumbnail)
             .service(collections::set_collection_thumbnail)
-            .service(collections::get_collections),
+            .service(collections::get_collections)
+            .service(collections::delete_collection),
     );
 }

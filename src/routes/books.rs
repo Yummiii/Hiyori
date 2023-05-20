@@ -123,5 +123,5 @@ pub async fn get_book_image(db: Data<Database>, ids: Path<(String, String)>) -> 
         None => return HttpResponse::NotFound().body("Data not found"),
     };
 
-    HttpResponse::Ok().content_type(data.mime).body(data.content)
+    HttpResponse::Ok().content_type(data.mime).append_header(("Cache-Control", "max-age=604800")).body(data.content)
 }

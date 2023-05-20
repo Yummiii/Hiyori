@@ -42,3 +42,11 @@ pub async fn get_books_by_collection(db: &Database, collection_id: &String) -> R
         .await?;
     Ok(books)
 }
+
+pub async fn get_book_images(db: &Database, book_id: &String) -> Result<Vec<BookImage>, sqlx::Error> {
+    let images = sqlx::query_as::<_, BookImage>("SELECT * FROM BookImages WHERE book_id = ? ORDER BY page_number ASC")
+        .bind(book_id)
+        .fetch_all(db.get_pool())
+        .await?;
+    Ok(images)
+}
