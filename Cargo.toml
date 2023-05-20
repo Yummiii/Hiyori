@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 actix-web = "4.3.1"
 cuid2 = "0.1.0"
-tokio = { version = "1.26.0", features = [
+tokio = { version = "1.28.1", features = [
     "macros",
     "rt-multi-thread",
     "fs",
@@ -16,8 +16,8 @@ tokio = { version = "1.26.0", features = [
 ] }
 dotenv = "0.15.0"
 pretty_env_logger = "0.4.0"
-serde = { version = "1.0.152", features = ["derive"] }
-serde_json = "1.0.93"
+serde = { version = "1.0.163", features = ["derive"] }
+serde_json = "1.0.96"
 sqlx = { version = "0.6.2", features = [
     "runtime-tokio-rustls",
     "mysql",
@@ -28,3 +28,7 @@ actix-multipart = "0.6.0"
 actix-cors = "0.6.4"
 epub = "2.0.0"
 itertools = "0.10.5"
+figment = { version = "0.10.8", features = ["env"] }
+actix-web-lab = "0.19.1"
+lazy_static = "1.4.0"
+regex = "1.8.1"

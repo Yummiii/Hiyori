@@ -5,10 +5,9 @@ use sqlx::{
 };
 use std::time::Duration;
 
-pub mod books;
 pub mod collections;
+pub mod books;
 pub mod images;
-
 pub struct Database {
     pool: Pool<MySql>,
 }
